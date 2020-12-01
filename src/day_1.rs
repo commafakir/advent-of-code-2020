@@ -1,4 +1,4 @@
-const DATA_FILE: &str = "data/day_1_1.txt";
+const DATA_FILE: &str = "data/day_1.txt";
 const TARGET: u32 = 2020;
 
 pub fn solve_part_1(){
