@@ -3,38 +3,44 @@ const TARGET: u32 = 2020;
 
 pub fn solve_part_1(){
   println!("Solving day one - part one");
-  println!("The answer is {}", calculate_part_one());
+  match calculate_part_one() {
+    Some(x) => println!("The answer is {}", x),
+    None => println!("Can't find solution")
+  }
 }
 
 pub fn solve_part_2(){
   println!("Solving day one - part two");
-  println!("The answer is {}", calculate_part_two());
+  match calculate_part_two() {
+    Some(x) => println!("The answer is {}", x),
+    None => println!("Can't find solution")
+  }
 }
 
-fn calculate_part_one() -> u32 {
+fn calculate_part_one() -> Option<u32> {
   let numbers = prepare_data();
   for a in 0..numbers.len() {
     for b in a + 1..numbers.len() {
       if numbers[a] + numbers[b] == TARGET {
-        return numbers[a] * numbers[b]
+        return Some(numbers[a] * numbers[b])
       }
     } 
   }
-  panic!("Can't find the solution!")
+  None
 }
 
-fn calculate_part_two() -> u32 {
+fn calculate_part_two() -> Option<u32> {
   let numbers = prepare_data();
   for a in 0..numbers.len() {
     for b in a + 1..numbers.len() {
       for c in b + 1..numbers.len() {
         if numbers[a] + numbers[b] + numbers[c] == TARGET {
-          return numbers[a] * numbers[b] * numbers[c]
+          return Some(numbers[a] * numbers[b] * numbers[c])
         }
       }
     } 
   }
-  panic!("Can't find the solution!")
+  None
 }
 
 fn prepare_data() -> Vec<u32> {
@@ -58,10 +64,14 @@ mod tests {
   }
   #[test]
   fn assert_part_one() {
-    assert_eq!(calculate_part_one(), 744475u32)
+    let result = calculate_part_one();
+    assert!(!result.is_none());
+    assert_eq!(result.unwrap(), 744475u32)
   }
   #[test]
   fn assert_part_two() {
-    assert_eq!(calculate_part_two(), 70276940u32)
+    let result = calculate_part_two();
+    assert!(!result.is_none());
+    assert_eq!(result.unwrap(), 70276940u32)
   }
 }
