@@ -15,6 +15,7 @@ fn main() {
         "1"  => day_1::solve_part_1(),
         "1N" => day_1::solve_part_2(),
         "2"  => day_2::solve_part_1(),
+        "2N" => day_2::solve_part_2(),
         _    => println!("Unknown day"),
     }
 }

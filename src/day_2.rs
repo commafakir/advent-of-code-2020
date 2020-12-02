@@ -3,6 +3,7 @@ use lazy_static::lazy_static;
 
 const DATA_FILE: &str = "data/day_2.txt";
 
+#[derive(Debug)]
 struct PwdEntry {
   min: u8,
   max: u8,
@@ -12,15 +13,30 @@ struct PwdEntry {
 
 pub fn solve_part_1(){
   println!("Solving day two - part one");
-  let count = valid_count(prepare_data());
+  let count = valid_count_for_one(prepare_data());
   println!("Found {} valid pwds", count)
 }
 
-fn valid_count(entries: Vec<String>) -> usize {
+pub fn solve_part_2(){
+  println!("Solving day two - part two");
+  let count = valid_count_for_two(prepare_data());
+  println!("Found {} valid pwds", count)
+}
+
+fn valid_count_for_one(entries: Vec<String>) -> usize {
   let a: Vec<PwdEntry> = entries
     .into_iter()
     .map(|r| parse_pwd(&r).unwrap())
-    .filter(|e| is_valid(e))
+    .filter(|e| is_valid_part_one(e))
+    .collect();
+  return a.len();
+}
+
+fn valid_count_for_two(entries: Vec<String>) -> usize {
+  let a: Vec<PwdEntry> = entries
+    .into_iter()
+    .map(|r| parse_pwd(&r).unwrap())
+    .filter(|e| is_valid_part_two(e))
     .collect();
   return a.len();
 }
@@ -31,7 +47,7 @@ fn prepare_data() -> Vec<String> {
   return str_array.map(|s| s.to_string()).collect()
 }
 
-fn is_valid(entry: &PwdEntry) -> bool {
+fn is_valid_part_one(entry: &PwdEntry) -> bool {
   let mut found = 0;
   for c in entry.pwd.chars() {
     if c == entry.character {
@@ -39,6 +55,17 @@ fn is_valid(entry: &PwdEntry) -> bool {
     }
   }
   return found >= entry.min && found <= entry.max;
+}
+
+fn is_valid_part_two(entry: &PwdEntry) -> bool {
+  // Ok, calling nth() consumes preceeding chars..
+  let mut chars = entry.pwd.chars();
+  let first = chars.nth((entry.min - 1).into()).unwrap_or('_');
+  let second = chars.nth(((entry.max - 1) - (entry.min - 1) - 1).into()).unwrap_or('_');
+
+  println!("{}, {}, {}", entry.pwd, first, second);
+  
+  return (first == entry.character || second == entry.character) && first != second;
 }
 
 fn parse_pwd(raw_line: &str) -> Option<PwdEntry> {
@@ -91,15 +118,28 @@ mod tests {
     assert_eq!(uw_entry.pwd, "abcdefg");
   }
   #[test]
-  fn assert_is_valid_entry() {
-    assert!(is_valid(&parse_pwd("1-1 a: a").unwrap()));
-    assert!(is_valid(&parse_pwd("1-2 a: aa").unwrap()));
-    assert!(!is_valid(&parse_pwd("1-2 a: b").unwrap()));
+  fn assert_is_valid_entry_part_one() {
+    assert!(is_valid_part_one(&parse_pwd("1-1 a: a").unwrap()));
+    assert!(is_valid_part_one(&parse_pwd("1-2 a: aa").unwrap()));
+    assert!(!is_valid_part_one(&parse_pwd("1-2 a: b").unwrap()));
   }
   #[test]
-  fn assert_valid_count() {
-    assert_eq!(valid_count(vec![]), 0);
-    assert_eq!(valid_count(vec!["1-1 a: a".to_string()]), 1);
-    assert_eq!(valid_count(vec!["2-2 a: a".to_string()]), 0);
+  fn assert_is_valid_entry_part_two() {
+    assert!(!is_valid_part_two(&parse_pwd("1-2 a: aa").unwrap()));
+    assert!(is_valid_part_two(&parse_pwd("1-3 c: cab").unwrap()));
+    assert!(is_valid_part_two(&parse_pwd("1-3 c: bac").unwrap()));
+    assert!(!is_valid_part_two(&parse_pwd("1-2 a: bcd").unwrap()));
+  }
+  #[test]
+  fn assert_valid_count_part_one() {
+    assert_eq!(valid_count_for_one(vec![]), 0);
+    assert_eq!(valid_count_for_one(vec!["1-1 a: a".to_string()]), 1);
+    assert_eq!(valid_count_for_one(vec!["2-2 a: a".to_string()]), 0);
+  }
+  #[test]
+  fn assert_valid_count_part_two() {
+    assert_eq!(valid_count_for_two(vec![]), 0);
+    assert_eq!(valid_count_for_two(vec!["1-3 a: avs".to_string()]), 1);
+    assert_eq!(valid_count_for_two(vec!["2-3 a: afvafva".to_string()]), 0);
   }
 }
