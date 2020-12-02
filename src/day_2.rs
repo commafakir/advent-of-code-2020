@@ -13,32 +13,23 @@ struct PwdEntry {
 
 pub fn solve_part_1(){
   println!("Solving day two - part one");
-  let count = valid_count_for_one(prepare_data());
-  println!("Found {} valid pwds", count)
+  println!("Found {} valid pwds", 
+    valid_pwd_count(prepare_data(), valid_pwd_first_part))
 }
 
 pub fn solve_part_2(){
   println!("Solving day two - part two");
-  let count = valid_count_for_two(prepare_data());
-  println!("Found {} valid pwds", count)
+  println!("Found {} valid pwds", 
+    valid_pwd_count(prepare_data(), valid_pwd_second_part))
 }
 
-fn valid_count_for_one(entries: Vec<String>) -> usize {
-  let a: Vec<PwdEntry> = entries
+fn valid_pwd_count(entries: Vec<String>, validator: fn(&PwdEntry) -> bool) -> usize {
+  return entries
     .into_iter()
     .map(|r| parse_pwd(&r).unwrap())
-    .filter(|e| is_valid_part_one(e))
-    .collect();
-  return a.len();
-}
-
-fn valid_count_for_two(entries: Vec<String>) -> usize {
-  let a: Vec<PwdEntry> = entries
-    .into_iter()
-    .map(|r| parse_pwd(&r).unwrap())
-    .filter(|e| is_valid_part_two(e))
-    .collect();
-  return a.len();
+    .filter(validator)
+    .collect::<Vec<PwdEntry>>()
+    .len();
 }
 
 fn prepare_data() -> Vec<String> {
@@ -47,7 +38,7 @@ fn prepare_data() -> Vec<String> {
   return str_array.map(|s| s.to_string()).collect()
 }
 
-fn is_valid_part_one(entry: &PwdEntry) -> bool {
+fn valid_pwd_first_part(entry: &PwdEntry) -> bool {
   let mut found = 0;
   for c in entry.pwd.chars() {
     if c == entry.character {
@@ -57,13 +48,12 @@ fn is_valid_part_one(entry: &PwdEntry) -> bool {
   return found >= entry.min && found <= entry.max;
 }
 
-fn is_valid_part_two(entry: &PwdEntry) -> bool {
+fn valid_pwd_second_part(entry: &PwdEntry) -> bool {
   // Ok, calling nth() consumes preceeding chars..
+  // There must be a better way...
   let mut chars = entry.pwd.chars();
   let first = chars.nth((entry.min - 1).into()).unwrap_or('_');
   let second = chars.nth(((entry.max - 1) - (entry.min - 1) - 1).into()).unwrap_or('_');
-
-  println!("{}, {}, {}", entry.pwd, first, second);
   
   return (first == entry.character || second == entry.character) && first != second;
 }
@@ -108,7 +98,7 @@ mod tests {
     assert_eq!(uw_entry.pwd, "abcdefg");
   }
   #[test]
-  fn assert_parse_entry_multiple_characters() {
+  fn assert_parse_entry_multiple_characters_in_digits() {
     let entry = parse_pwd("13-53 c: abcdefg");
     assert!(!entry.is_none());
     let uw_entry = entry.unwrap();
@@ -118,28 +108,29 @@ mod tests {
     assert_eq!(uw_entry.pwd, "abcdefg");
   }
   #[test]
-  fn assert_is_valid_entry_part_one() {
-    assert!(is_valid_part_one(&parse_pwd("1-1 a: a").unwrap()));
-    assert!(is_valid_part_one(&parse_pwd("1-2 a: aa").unwrap()));
-    assert!(!is_valid_part_one(&parse_pwd("1-2 a: b").unwrap()));
+  fn assert_valid_pwd_first_part() {
+    assert!(valid_pwd_first_part(&parse_pwd("1-1 a: a").unwrap()));
+    assert!(valid_pwd_first_part(&parse_pwd("1-2 a: aa").unwrap()));
+    assert!(!valid_pwd_first_part(&parse_pwd("1-2 a: b").unwrap()));
   }
   #[test]
-  fn assert_is_valid_entry_part_two() {
-    assert!(!is_valid_part_two(&parse_pwd("1-2 a: aa").unwrap()));
-    assert!(is_valid_part_two(&parse_pwd("1-3 c: cab").unwrap()));
-    assert!(is_valid_part_two(&parse_pwd("1-3 c: bac").unwrap()));
-    assert!(!is_valid_part_two(&parse_pwd("1-2 a: bcd").unwrap()));
+  fn assert_valid_pwd_second_part() {
+    assert!(!valid_pwd_second_part(&parse_pwd("1-2 a: aa").unwrap()));
+    assert!(valid_pwd_second_part(&parse_pwd("1-3 c: cab").unwrap()));
+    assert!(valid_pwd_second_part(&parse_pwd("1-3 c: bac").unwrap()));
+    assert!(!valid_pwd_second_part(&parse_pwd("1-2 a: bcd").unwrap()));
   }
   #[test]
-  fn assert_valid_count_part_one() {
-    assert_eq!(valid_count_for_one(vec![]), 0);
-    assert_eq!(valid_count_for_one(vec!["1-1 a: a".to_string()]), 1);
-    assert_eq!(valid_count_for_one(vec!["2-2 a: a".to_string()]), 0);
+  fn assert_valid_pwd_counter() {
+    assert_eq!(valid_pwd_count(vec!["1-2 a: aaa".to_string()], |_| true), 1);
+    assert_eq!(valid_pwd_count(vec!["1-2 a: aaa".to_string()], |_| false), 0);
   }
   #[test]
-  fn assert_valid_count_part_two() {
-    assert_eq!(valid_count_for_two(vec![]), 0);
-    assert_eq!(valid_count_for_two(vec!["1-3 a: avs".to_string()]), 1);
-    assert_eq!(valid_count_for_two(vec!["2-3 a: afvafva".to_string()]), 0);
+  fn assert_correct_answer_part_1() {
+    assert_eq!(valid_pwd_count(prepare_data(), valid_pwd_first_part), 607);
+  }
+  #[test]
+  fn assert_correct_answer_part_2() {
+    assert_eq!(valid_pwd_count(prepare_data(), valid_pwd_second_part), 321);
   }
 }
