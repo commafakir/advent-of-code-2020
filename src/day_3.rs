@@ -4,9 +4,9 @@ use crate::Challenge;
 
 const DATA_FILE: &str = "data/day_3.txt";
 
-pub struct Day2 {}
+pub struct Day3 {}
 
-impl Challenge for Day2 {
+impl Challenge for Day3 {
 
   fn solve(&self) -> (&str, Option<String>, Option<String>) {
     let p1 = solve_part_1().to_string();

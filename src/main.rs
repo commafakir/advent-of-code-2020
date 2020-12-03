@@ -14,6 +14,7 @@ fn main() {
     let results = vec![
         day_1::Day1{}.solve(),
         day_2::Day2{}.solve(),
+        day_3::Day3{}.solve(),
     ];
 
     for (day, r1, r2) in results {
