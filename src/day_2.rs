@@ -1,5 +1,6 @@
 use regex::Regex;
 use lazy_static::lazy_static;
+use crate::util::ioutil::{ parse_file, ParseError };
 
 const DATA_FILE: &str = "data/day_2.txt";
 
@@ -23,19 +24,19 @@ pub fn solve_part_2(){
     valid_pwd_count(prepare_data(), valid_pwd_second_part))
 }
 
-fn valid_pwd_count(entries: Vec<String>, validator: fn(&PwdEntry) -> bool) -> usize {
+fn valid_pwd_count(entries: Vec<PwdEntry>, validator: fn(&PwdEntry) -> bool) -> usize {
   return entries
     .into_iter()
-    .map(|r| parse_pwd(&r).unwrap())
     .filter(validator)
     .collect::<Vec<PwdEntry>>()
     .len();
 }
 
-fn prepare_data() -> Vec<String> {
-  let raw_data = crate::util::ioutil::read_file(DATA_FILE);
-  let str_array = raw_data.lines();
-  return str_array.map(|s| s.to_string()).collect()
+fn prepare_data() -> Vec<PwdEntry> {
+  match parse_file(DATA_FILE, parse_pwd) {
+    Ok(v) => v,
+    Err(r) => panic!("Can't parse: {}", r.invalid_data)
+  }
 }
 
 fn valid_pwd_first_part(entry: &PwdEntry) -> bool {
@@ -58,13 +59,13 @@ fn valid_pwd_second_part(entry: &PwdEntry) -> bool {
   return (first == entry.character || second == entry.character) && first != second;
 }
 
-fn parse_pwd(raw_line: &str) -> Option<PwdEntry> {
+fn parse_pwd(raw_line: &str) -> Result<PwdEntry, ParseError> {
   lazy_static! {
     static ref RE: Regex = Regex::new("(\\d+)-(\\d+) (\\S): (.+)").unwrap();
   }
   let matches: Option<regex::Captures> = RE.captures(raw_line);
   match matches {
-    Some(captures) => Some(PwdEntry {
+    Some(captures) => Ok(PwdEntry {
       min: captures.get(1).unwrap().as_str().parse::<u8>().unwrap(),
       max: captures.get(2).unwrap().as_str().parse::<u8>().unwrap(),
       character: captures.get(3).unwrap().as_str().chars().nth(0).unwrap(),
@@ -72,7 +73,7 @@ fn parse_pwd(raw_line: &str) -> Option<PwdEntry> {
     }),
     None => {
       println!("Can't parse {}", raw_line);
-      return None;
+      return Err( ParseError { invalid_data: raw_line.to_string() });
     }
   }
 }
@@ -83,14 +84,19 @@ mod tests {
   #[test]
   fn assert_parsing_finds_values() {
     let values = prepare_data();
-    println!("{:?}", values);
     assert!(!values.is_empty());
     assert!(values.len() > 5);
   }
   #[test]
+  fn assert_parse_fail() {
+    let entry = parse_pwd("vvevervv");
+    assert!(entry.is_err());
+    assert_eq!(entry.unwrap_err().invalid_data, "vvevervv")
+  }
+  #[test]
   fn assert_parse_entry() {
     let entry = parse_pwd("1-3 c: abcdefg");
-    assert!(!entry.is_none());
+    assert!(entry.is_ok());
     let uw_entry = entry.unwrap();
     assert_eq!(uw_entry.min, 1u8);
     assert_eq!(uw_entry.max, 3u8);
@@ -100,7 +106,7 @@ mod tests {
   #[test]
   fn assert_parse_entry_multiple_characters_in_digits() {
     let entry = parse_pwd("13-53 c: abcdefg");
-    assert!(!entry.is_none());
+    assert!(entry.is_ok());
     let uw_entry = entry.unwrap();
     assert_eq!(uw_entry.min, 13u8);
     assert_eq!(uw_entry.max, 53u8);
@@ -121,9 +127,20 @@ mod tests {
     assert!(!valid_pwd_second_part(&parse_pwd("1-2 a: bcd").unwrap()));
   }
   #[test]
-  fn assert_valid_pwd_counter() {
-    assert_eq!(valid_pwd_count(vec!["1-2 a: aaa".to_string()], |_| true), 1);
-    assert_eq!(valid_pwd_count(vec!["1-2 a: aaa".to_string()], |_| false), 0);
+  fn assert_valid_pwd_counter_adds() {
+    let entries = vec![ 
+      PwdEntry { min: 1, max: 2, character: 'a', pwd: "xxxx".to_string()} 
+    ];
+    assert_eq!(valid_pwd_count(entries, |_| true), 1);
+    // Borrow checker...
+    // assert_eq!(valid_pwd_count(entries, |_| false), 0);
+  }
+  #[test]
+  fn assert_valid_pwd_counter_drops() {
+    let entries = vec![ 
+      PwdEntry { min: 1, max: 2, character: 'a', pwd: "xxxx".to_string()} 
+    ];
+    assert_eq!(valid_pwd_count(entries, |_| false), 0);
   }
   #[test]
   fn assert_correct_answer_part_1() {

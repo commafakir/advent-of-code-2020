@@ -44,9 +44,13 @@ fn calculate_part_two() -> Option<u32> {
 }
 
 fn prepare_data() -> Vec<u32> {
-  let raw_data = crate::util::ioutil::read_file(DATA_FILE);
-  let str_array = raw_data.split_whitespace();
-  return str_array.into_iter().map(|s| s.parse::<u32>().unwrap()).collect()
+  match crate::util::ioutil::parse_file(DATA_FILE, |s| match s.parse::<u32>() {
+    Ok(v) => Ok(v),
+    Err(_) => Err(crate::util::ioutil::ParseError { invalid_data: s.to_string() })
+  }) {
+    Ok(data) => data,
+    Err(e) => panic!("Erro while parsing: {}", e.invalid_data)
+  }
 }
 
 #[cfg(test)]
@@ -56,6 +60,7 @@ mod tests {
   fn assert_parsing_finds_values() {
     let values = prepare_data();
     assert!(!values.is_empty());
+    assert!(values.len() > 5);
   }
   #[test]
   fn assert_values_are_summable() {
@@ -63,13 +68,13 @@ mod tests {
     assert!(values.iter().sum::<u32>() > 0);
   }
   #[test]
-  fn assert_part_one() {
+  fn assert_part_one_solution() {
     let result = calculate_part_one();
     assert!(!result.is_none());
     assert_eq!(result.unwrap(), 744475u32)
   }
   #[test]
-  fn assert_part_two() {
+  fn assert_part_two_solution() {
     let result = calculate_part_two();
     assert!(!result.is_none());
     assert_eq!(result.unwrap(), 70276940u32)
