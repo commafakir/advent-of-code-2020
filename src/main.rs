@@ -2,6 +2,7 @@ use std::env;
 mod util;
 mod day_1;
 mod day_2;
+mod day_3;
 
 
 fn main() {
@@ -16,6 +17,8 @@ fn main() {
         "1N" => day_1::solve_part_2(),
         "2"  => day_2::solve_part_1(),
         "2N" => day_2::solve_part_2(),
+        "3"  => day_3::solve_part_1(),
+        "3N" => day_3::solve_part_2(),        
         _    => println!("Unknown day"),
     }
 }

@@ -15,7 +15,7 @@ pub fn parse_file<T>(filename: &str, parser: fn(&str) -> Result<T, ParseError>) 
   return parse(read_file(filename), parser);
 }
 
-fn parse<T>(data: String, parser: fn(&str) -> Result<T, ParseError>) -> Result<Vec<T>, ParseError> {
+pub fn parse<T>(data: String, parser: fn(&str) -> Result<T, ParseError>) -> Result<Vec<T>, ParseError> {
   return data.lines().map(|raw| match parser(raw) {
     Ok(v) => Ok(v),
     Err(e) => Err(e)
