@@ -11,16 +11,27 @@ type World = Vec<Vec<Thing>>;
 
 pub fn solve_part_1(){
   println!("Solving day three - part one");
-  let c = traverse_and_count(prepare_data(), 3, 1);
+  let data = prepare_data();
+  let c = traverse_and_count(&data, 3, 1);
   println!("Trees encountered: {}", c);
 }
 
 pub fn solve_part_2(){
   println!("Solving day three - part two");
-  println!("Not yet implemented");
+  let c = calculate_part_2();
+  println!("Trees encountered lot's, the answer is: {}", c);
 }
 
-fn traverse_and_count(world: World, r_steps: usize, d_steps: usize) -> u32 {
+fn calculate_part_2() -> u32 {
+  let data = prepare_data();
+  return traverse_and_count(&data, 1, 1) * 
+    traverse_and_count(&data, 3, 1) *
+    traverse_and_count(&data, 5, 1) *
+    traverse_and_count(&data, 7, 1) *
+    traverse_and_count(&data, 1, 2);
+}
+
+fn traverse_and_count(world: &World, r_steps: usize, d_steps: usize) -> u32 {
   let mut x = 0;
   let mut y = 0;
   let mut trees_encountered = 0;
@@ -86,7 +97,7 @@ mod tests {
 
     let p_world = parse(world.to_string(), parse_row);
     assert!(p_world.is_ok());
-    let count = traverse_and_count(p_world.unwrap(), 1, 1);
+    let count = traverse_and_count(&p_world.unwrap(), 1, 1);
     assert_eq!(count, 4);
   }
   #[test]
@@ -102,12 +113,18 @@ mod tests {
 
     let p_world = parse(world.to_string(), parse_row);
     assert!(p_world.is_ok());
-    let count = traverse_and_count(p_world.unwrap(), 1, 1);
+    let count = traverse_and_count(&p_world.unwrap(), 1, 1);
     assert_eq!(count, 8);
   }
   #[test]
   fn assert_part_one() {
-    let c = traverse_and_count(prepare_data(), 3, 1);
+    let c = traverse_and_count(&prepare_data(), 3, 1);
     assert_eq!(c, 284);
+  }
+
+  #[test]
+  fn assert_part_two() {
+    let c = calculate_part_2();
+    assert_eq!(c, 3510149120);
   }
 }
