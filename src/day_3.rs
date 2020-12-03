@@ -1,5 +1,20 @@
-const DATA_FILE: &str = "data/day_3.txt";
+
 use crate::util::ioutil::{ parse_file, ParseError };
+use crate::Challenge;
+
+const DATA_FILE: &str = "data/day_3.txt";
+
+pub struct Day2 {}
+
+impl Challenge for Day2 {
+
+  fn solve(&self) -> (&str, Option<String>, Option<String>) {
+    let p1 = solve_part_1().to_string();
+    let p2 = solve_part_2().to_string();
+    return ("Day 3", Some(p1), Some(p2));
+  }
+
+}
 
 #[derive(PartialEq, Debug)] 
 enum Thing {
@@ -9,20 +24,11 @@ enum Thing {
 
 type World = Vec<Vec<Thing>>;
 
-pub fn solve_part_1(){
-  println!("Solving day three - part one");
-  let data = prepare_data();
-  let c = traverse_and_count(&data, 3, 1);
-  println!("Trees encountered: {}", c);
+pub fn solve_part_1() -> u32 {
+  return traverse_and_count(&prepare_data(), 3, 1);
 }
 
-pub fn solve_part_2(){
-  println!("Solving day three - part two");
-  let c = calculate_part_2();
-  println!("Trees encountered lot's, the answer is: {}", c);
-}
-
-fn calculate_part_2() -> u32 {
+pub fn solve_part_2() -> u32 {
   let data = prepare_data();
   return traverse_and_count(&data, 1, 1) * 
     traverse_and_count(&data, 3, 1) *
@@ -118,13 +124,13 @@ mod tests {
   }
   #[test]
   fn assert_part_one() {
-    let c = traverse_and_count(&prepare_data(), 3, 1);
+    let c = solve_part_1();
     assert_eq!(c, 284);
   }
 
   #[test]
   fn assert_part_two() {
-    let c = calculate_part_2();
+    let c = solve_part_2();
     assert_eq!(c, 3510149120);
   }
 }

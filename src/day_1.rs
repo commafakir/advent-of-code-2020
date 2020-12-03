@@ -1,20 +1,24 @@
+use crate::Challenge;
+
 const DATA_FILE: &str = "data/day_1.txt";
 const TARGET: u32 = 2020;
 
-pub fn solve_part_1(){
-  println!("Solving day one - part one");
-  match calculate_part_one() {
-    Some(x) => println!("The answer is {}", x),
-    None => println!("Can't find solution")
-  }
-}
+pub struct Day1 {}
 
-pub fn solve_part_2(){
-  println!("Solving day one - part two");
-  match calculate_part_two() {
-    Some(x) => println!("The answer is {}", x),
-    None => println!("Can't find solution")
+impl Challenge for Day1 {
+
+  fn solve(&self) -> (&str, Option<String>, Option<String>) {
+    let p1 = match calculate_part_one() {
+      Some(res) => Some(res.to_string()),
+      None => None
+    };
+    let p2 = match calculate_part_two() {
+      Some(res) => Some(res.to_string()),
+      None => None
+    };
+    return ("Day 1", p1, p2);
   }
+
 }
 
 fn calculate_part_one() -> Option<u32> {

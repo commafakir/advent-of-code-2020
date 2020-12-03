@@ -1,24 +1,27 @@
-use std::env;
 mod util;
 mod day_1;
 mod day_2;
 mod day_3;
 
+trait Challenge {
+    fn solve(&self) -> (&str, Option<String>, Option<String>);
+}
 
 fn main() {
-    let args: Vec<String> = env::args().collect();
 
-    if args.len() != 2 {
-        panic!("Pass day as an argument");
+    println!("SoLViNg AOC 2020 - noobie rust");
+
+    let results = vec![
+        day_1::Day1{}.solve(),
+        day_2::Day2{}.solve(),
+    ];
+
+    for (day, r1, r2) in results {
+        println!("{} \t {} // {}", 
+            day, 
+            r1.unwrap_or("**FAILS**".to_string()), 
+            r2.unwrap_or("**FAILS**".to_string()));
     }
 
-    match args[1].as_str() {
-        "1"  => day_1::solve_part_1(),
-        "1N" => day_1::solve_part_2(),
-        "2"  => day_2::solve_part_1(),
-        "2N" => day_2::solve_part_2(),
-        "3"  => day_3::solve_part_1(),
-        "3N" => day_3::solve_part_2(),        
-        _    => println!("Unknown day"),
-    }
+    
 }

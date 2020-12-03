@@ -1,3 +1,4 @@
+use crate::Challenge;
 use regex::Regex;
 use lazy_static::lazy_static;
 use crate::util::ioutil::{ parse_file, ParseError };
@@ -12,16 +13,16 @@ struct PwdEntry {
   pwd: String
 }
 
-pub fn solve_part_1(){
-  println!("Solving day two - part one");
-  println!("Found {} valid pwds", 
-    valid_pwd_count(prepare_data(), valid_pwd_first_part))
-}
+pub struct Day2 {}
 
-pub fn solve_part_2(){
-  println!("Solving day two - part two");
-  println!("Found {} valid pwds", 
-    valid_pwd_count(prepare_data(), valid_pwd_second_part))
+impl Challenge for Day2 {
+
+  fn solve(&self) -> (&str, Option<String>, Option<String>) {
+    let p1 = valid_pwd_count(prepare_data(), valid_pwd_first_part).to_string();
+    let p2 = valid_pwd_count(prepare_data(), valid_pwd_second_part).to_string();
+    return ("Day 2", Some(p1), Some(p2));
+  }
+
 }
 
 fn valid_pwd_count(entries: Vec<PwdEntry>, validator: fn(&PwdEntry) -> bool) -> usize {
